@@ -1,0 +1,26 @@
+{
+  "name": "eduyodha-platform",
+  "version": "1.0.0",
+  "description": "EDU YODHA - Modern Indian Ed-Tech Platform for Engineering & College Students",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite --port 3000 --open",
+    "build": "vite build",
+    "preview": "vite preview --port 3000 --open",
+    "serve": "python -m http.server 8000"
+  },
+  "keywords": [
+    "ed-tech",
+    "vtu",
+    "kcet",
+    "internships",
+    "engineering",
+    "student-resources"
+  ],
+  "author": "EDU YODHA Team",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^5.4.2"
+  }
+}
