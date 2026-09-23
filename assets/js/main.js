@@ -1,7 +1,6 @@
-/**
- * EDU YODHA - Main Interactive Script
- * Handles navigation, mobile drawer, category filters, interactive modals, and forms
- */
+// Configuration: EDU YODHA WhatsApp phone number (country code without '+' or spaces)
+const EDU_YODHA_WHATSAPP_NUMBER = '917353129776';
+const EDU_YODHA_WHATSAPP_CHANNEL = 'https://whatsapp.com/channel/0029Vb27q0JKwqSbZewkPh1r';
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
@@ -9,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initUpdateFilters();
   initDomainFilters();
   initApplicationModal();
+  initContactForm();
   initAccordions();
   initQuickCounters();
 });
@@ -112,7 +112,7 @@ function initDomainFilters() {
   });
 }
 
-/* 5. Internship Application Modal */
+/* 5. Internship Application Modal & WhatsApp Submission */
 function initApplicationModal() {
   const modal = document.getElementById('applyModal');
   const closeBtn = document.getElementById('modalCloseBtn');
@@ -120,70 +120,143 @@ function initApplicationModal() {
   const applyForm = document.getElementById('internshipApplyForm');
   const domainSelect = document.getElementById('applyDomainSelect');
 
-  if (!modal) return;
-
-  function openModal(defaultDomain = '') {
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    if (domainSelect && defaultDomain) {
-      domainSelect.value = defaultDomain;
+  if (applyTriggers.length && modal) {
+    function openModal(defaultDomain = '') {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      if (domainSelect && defaultDomain) {
+        domainSelect.value = defaultDomain;
+      }
     }
-  }
 
-  function closeModal() {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
 
-  applyTriggers.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const domain = btn.getAttribute('data-domain') || '';
-      openModal(domain);
+    applyTriggers.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const domain = btn.getAttribute('data-domain') || '';
+        openModal(domain);
+      });
     });
-  });
 
-  if (closeBtn) {
-    closeBtn.addEventListener('click', closeModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
   }
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal();
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
-      closeModal();
-    }
-  });
 
   if (applyForm) {
     applyForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const submitBtn = applyForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span>Submitting Application...</span>';
+      const fullName = document.getElementById('applyFullName')?.value.trim() || '';
+      const email = document.getElementById('applyEmail')?.value.trim() || '';
+      const phone = document.getElementById('applyPhone')?.value.trim() || '';
+      const college = document.getElementById('applyCollege')?.value.trim() || '';
+      const year = document.getElementById('applyYear')?.value.trim() || '';
+      const domain = document.getElementById('applyDomainSelect')?.value.trim() || '';
+
+      const submitBtn = applyForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Opening WhatsApp...</span>';
+      }
+
+      const messageText = `🎓 *New Internship Registration - EDU YODHA*\n\n` +
+        `📌 *Full Name:* ${fullName}\n` +
+        `📧 *Email:* ${email}\n` +
+        `📱 *Student WhatsApp:* ${phone}\n` +
+        `🏫 *College:* ${college}\n` +
+        `📚 *Current Year:* ${year}\n` +
+        `💻 *Selected Domain:* ${domain}\n\n` +
+        `Please confirm my application and send onboarding details.`;
+
+      const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+
+      // Launch WhatsApp chat
+      window.open(waUrl, '_blank');
 
       setTimeout(() => {
         applyForm.innerHTML = `
-          <div style="text-align: center; padding: 2rem 1rem;">
+          <div style="text-align: center; padding: 1.5rem 1rem;">
             <div style="width: 56px; height: 56px; background: #D1FAE5; color: #059669; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.75rem;">✓</div>
-            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Application Received!</h3>
-            <p style="color: #475569; font-size: 0.95rem; margin-bottom: 1.5rem;">Thank you for registering with EDU YODHA. Our team will review your application and send the onboarding details to your email and WhatsApp.</p>
-            <div style="background: #F1F5F9; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left; font-size: 0.88rem; color: #334155;">
-              <strong>Next Step:</strong> Make sure you have joined the official EDU YODHA WhatsApp Channel for live batch alerts and screening schedules.
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Application Sent via WhatsApp!</h3>
+            <p style="color: #475569; font-size: 0.92rem; margin-bottom: 1.25rem;">Your registration details were formatted for WhatsApp. If chat did not open automatically, click below:</p>
+            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="background-color: #25D366; border: none; margin-bottom: 1rem; font-weight: 700;">Open WhatsApp Chat ↗</a>
+            
+            <div style="background: #F0FDF4; border: 1px dashed #25D366; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; text-align: left;">
+              <strong style="color: #166534; font-size: 0.92rem; display: block; margin-bottom: 0.25rem;">📢 Don't miss live updates!</strong>
+              <p style="font-size: 0.85rem; color: #15803D; margin-bottom: 0.75rem;">Join the official EDU YODHA WhatsApp Channel for daily VTU circulars, KCET cutoffs, and batch announcements.</p>
+              <a href="${EDU_YODHA_WHATSAPP_CHANNEL}" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background-color: #059669; color: #FFFFFF; border: none; font-size: 0.88rem; padding: 0.6rem 1rem; text-align: center;">Join WhatsApp Channel ↗</a>
             </div>
-            <a href="https://whatsapp.com/channel/0029Vb27q0JKwqSbZewkPh1r" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="background-color: #25D366; border: none; margin-bottom: 0.75rem;">Join WhatsApp Channel</a>
+
             <button type="button" class="btn btn-secondary btn-block" onclick="location.reload()">Done</button>
           </div>
         `;
-      }, 1000);
+      }, 500);
     });
   }
+}
+
+/* 6. Contact Us Form Handler & WhatsApp Submission */
+function initContactForm() {
+  const contactForm = document.getElementById('contactForm');
+  if (!contactForm) return;
+
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('contactName')?.value.trim() || '';
+    const email = document.getElementById('contactEmail')?.value.trim() || '';
+    const phone = document.getElementById('contactPhone')?.value.trim() || '';
+    const subject = document.getElementById('contactSubject')?.value.trim() || '';
+    const message = document.getElementById('contactMessage')?.value.trim() || '';
+
+    const submitBtn = document.getElementById('contactSubmitBtn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Opening WhatsApp...';
+    }
+
+    const messageText = `💬 *New Message - EDU YODHA Contact Desk*\n\n` +
+      `📌 *Full Name:* ${name}\n` +
+      `📧 *Email:* ${email}\n` +
+      `📱 *WhatsApp:* ${phone}\n` +
+      `🏷️ *Category:* ${subject}\n` +
+      `📝 *Message:* ${message}`;
+
+    const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+
+    // Launch WhatsApp chat
+    window.open(waUrl, '_blank');
+
+    setTimeout(() => {
+      const successMsg = document.getElementById('contactSuccessMsg');
+      if (successMsg) {
+        contactForm.style.display = 'none';
+        successMsg.innerHTML = `
+          <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem; color: #065F46;">✓ Message Prepared for WhatsApp!</strong>
+          <p style="font-size: 0.88rem; margin-bottom: 1rem; color: #047857;">If WhatsApp did not open automatically, click below to send your message to our official desk:</p>
+          <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background-color: #25D366; border: none; display: block; width: 100%; text-align: center; margin-bottom: 1.25rem; font-weight: 700;">Send via WhatsApp Chat ↗</a>
+          
+          <div style="background: #FFFFFF; border: 1px solid #A7F3D0; border-radius: 10px; padding: 1rem; text-align: left;">
+            <strong style="color: #065F46; font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">📢 Join EDU YODHA WhatsApp Channel</strong>
+            <p style="font-size: 0.82rem; color: #047857; margin-bottom: 0.75rem;">Get instant broadcast alerts for VTU exam timetables, results, and career drives.</p>
+            <a href="${EDU_YODHA_WHATSAPP_CHANNEL}" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #059669; color: #FFFFFF; border: none; display: block; text-align: center; font-size: 0.85rem; padding: 0.55rem;">Join Official WhatsApp Channel ↗</a>
+          </div>
+        `;
+        successMsg.style.display = 'block';
+      }
+    }, 500);
+  });
 }
 
 /* 6. Accordion toggle */

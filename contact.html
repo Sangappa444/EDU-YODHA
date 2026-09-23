@@ -240,18 +240,5 @@
   </footer>
 
   <script type="module" src="assets/js/main.js"></script>
-  <script>
-    document.getElementById('contactForm')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('contactSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
-
-      setTimeout(() => {
-        document.getElementById('contactForm').style.display = 'none';
-        document.getElementById('contactSuccessMsg').style.display = 'block';
-      }, 700);
-    });
-  </script>
 </body>
 </html>

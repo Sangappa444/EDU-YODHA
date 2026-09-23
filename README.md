@@ -1,9 +1,30 @@
 # EDU YODHA — Official Web Platform
 
 > **Empowering Students. Building Careers.**  
-> Official Domain: [eduyodha.com](https://eduyodha.com)
+> **Official Domain:** [eduyodha.com](https://eduyodha.com) *(Or free live preview on [eduyodha.netlify.app](https://eduyodha.netlify.app) / [eduyodha.vercel.app](https://eduyodha.vercel.app))*
 
 A modern, student-focused education platform built for engineering students, KCET/COMEDK aspirants, and college students seeking domain internships, verified university updates, and career opportunities.
+
+---
+
+## 🌐 Deploy Free to the Internet (Instant Live URL)
+
+### Option 1: Netlify Drag & Drop (Fastest - 30 seconds)
+1. Open **[app.netlify.com/drop](https://app.netlify.com/drop)** in your web browser.
+2. Drag and drop the **`dist`** folder (`d:\EDU YODHA\dist`) onto the web page.
+3. Your site is live! You can set the site name to `eduyodha.netlify.app` in Netlify Site Settings.
+
+### Option 2: Vercel CLI
+Run the following command in your terminal:
+```powershell
+npx vercel
+```
+Follow the quick prompts to deploy instantly to `eduyodha.vercel.app`.
+
+### Option 3: GitHub Pages
+1. Push this repository to GitHub.
+2. Go to **Settings > Pages** in your GitHub repository.
+3. Select `main` branch and `/` root (or `/dist` folder) and save.
 
 ---
 

@@ -6,7 +6,7 @@
   <title>Contact Us | EDU YODHA - Get in Touch with Student Support</title>
   <meta name="description" content="Reach out to the EDU YODHA team for internship queries, VTU assistance, KCET counseling guidance, and student community partnerships.">
   <link rel="icon" type="image/png" href="/assets/logo-Bh1kQVwJ.png">
-  <script type="module" crossorigin src="/assets/main-C3iWOh9q.js"></script>
+  <script type="module" crossorigin src="/assets/main-CbV8FByv.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/main-bcMHyybM.css">
 </head>
 <body>
@@ -240,18 +240,5 @@
     </div>
   </footer>
 
-  <script>
-    document.getElementById('contactForm')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('contactSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
-
-      setTimeout(() => {
-        document.getElementById('contactForm').style.display = 'none';
-        document.getElementById('contactSuccessMsg').style.display = 'block';
-      }, 700);
-    });
-  </script>
 </body>
 </html>
