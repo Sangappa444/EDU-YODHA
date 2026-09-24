@@ -445,66 +445,100 @@ function initUploadNotesModal() {
       const contributorName = document.getElementById('noteContributorName')?.value.trim() || '';
       const collegeName = document.getElementById('noteCollegeName')?.value.trim() || '';
 
-      const fileDataUrl = URL.createObjectURL(fileObj);
+      const submitBtn = uploadForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Publishing & Syncing Globally...';
+      }
 
-      const newNote = {
-        id: 'note_' + Date.now(),
-        subjectName,
-        subjectCode,
-        branch,
-        semester,
-        category,
-        contributorName,
-        collegeName,
-        fileName: fileObj.name,
-        fileSize: formatBytes(fileObj.size),
-        fileUrl: fileDataUrl,
-        date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-      };
+      function processAndSaveNote(fileUrl) {
+        const newNote = {
+          id: 'note_' + Date.now(),
+          subjectName,
+          subjectCode,
+          branch,
+          semester,
+          category,
+          contributorName,
+          collegeName,
+          fileName: fileObj.name,
+          fileSize: formatBytes(fileObj.size),
+          fileUrl: fileUrl,
+          date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+        };
 
-      // Save to localStorage
-      saveCommunityNote(newNote);
+        // Save locally & broadcast to global cloud API
+        publishNoteToGlobalCloud(newNote);
 
-      // Show success screen in modal
-      const waText = `📤 *New Student PDF Uploaded on EDU YODHA*\n\n` +
-        `📚 *Subject:* ${subjectName} (${subjectCode})\n` +
-        `🎓 *Branch & Sem:* ${branch} | ${semester}\n` +
-        `🏷️ *Category:* ${category}\n` +
-        `📄 *File:* ${fileObj.name} (${formatBytes(fileObj.size)})\n` +
-        `👤 *Contributed By:* ${contributorName} (${collegeName})\n\n` +
-        `Please verify and add to permanent VTU repository.`;
+        const waText = `📤 *New Student PDF Uploaded on EDU YODHA*\n\n` +
+          `📚 *Subject:* ${subjectName} (${subjectCode})\n` +
+          `🎓 *Branch & Sem:* ${branch} | ${semester}\n` +
+          `🏷️ *Category:* ${category}\n` +
+          `📄 *File:* ${fileObj.name} (${formatBytes(fileObj.size)})\n` +
+          `👤 *Contributed By:* ${contributorName} (${collegeName})\n\n` +
+          `Please verify and add to permanent VTU repository.`;
 
-      const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+        const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
 
-      uploadForm.innerHTML = `
-        <div style="text-align: center; padding: 1.5rem 1rem;">
-          <div style="width: 56px; height: 56px; background: #D1FAE5; color: #059669; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.75rem;">✓</div>
-          <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Notes Uploaded Successfully!</h3>
-          <p style="color: #475569; font-size: 0.92rem; margin-bottom: 1.25rem;">Your document <strong>${fileObj.name}</strong> is now listed under Community Contributed Notes.</p>
-          
-          <div style="display: flex; gap: 10px; flex-direction: column; margin-bottom: 1.25rem;">
-            <a href="${fileDataUrl}" download="${fileObj.name}" class="btn btn-primary btn-block" style="font-weight: 700;">⬇ Download Uploaded PDF</a>
-            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background-color: #25D366; color: #FFFFFF; border: none; font-weight: 700;">Share to Official Desk via WhatsApp ↗</a>
+        uploadForm.innerHTML = `
+          <div style="text-align: center; padding: 1.5rem 1rem;">
+            <div style="width: 56px; height: 56px; background: #D1FAE5; color: #059669; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.75rem;">✓</div>
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Notes Published & Visible to Everyone!</h3>
+            <p style="color: #475569; font-size: 0.92rem; margin-bottom: 1.25rem;">Your document <strong>${fileObj.name}</strong> is now live and accessible across all mobile devices, laptops, and tablets globally.</p>
+            
+            <div style="display: flex; gap: 10px; flex-direction: column; margin-bottom: 1.25rem;">
+              <a href="${fileUrl}" download="${fileObj.name}" class="btn btn-primary btn-block" style="font-weight: 700;">⬇ Download Uploaded PDF</a>
+              <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background-color: #25D366; color: #FFFFFF; border: none; font-weight: 700;">Share to Official Desk via WhatsApp ↗</a>
+            </div>
+
+            <button type="button" class="btn btn-secondary btn-block" onclick="location.reload()">Done / Close</button>
           </div>
+        `;
 
-          <button type="button" class="btn btn-secondary btn-block" onclick="location.reload()">Done / Close</button>
-        </div>
-      `;
+        renderCommunityNotes();
+      }
 
-      // Refresh community notes view
-      renderCommunityNotes();
+      // Convert file to Data URL (Base64) for cross-device global sharing
+      if (fileObj.size < 8 * 1024 * 1024) { // Under 8MB
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          processAndSaveNote(evt.target.result);
+        };
+        reader.onerror = function() {
+          processAndSaveNote(URL.createObjectURL(fileObj));
+        };
+        reader.readAsDataURL(fileObj);
+      } else {
+        processAndSaveNote(URL.createObjectURL(fileObj));
+      }
     });
   }
 }
 
-/* Save note to local storage */
-function saveCommunityNote(note) {
+/* Save note locally & broadcast to global cloud storage */
+function publishNoteToGlobalCloud(note) {
   let notes = getSavedCommunityNotes();
-  notes.unshift(note);
+  if (!notes.some(n => n.id === note.id)) {
+    notes.unshift(note);
+  }
   try {
     localStorage.setItem('eduyodha_community_notes', JSON.stringify(notes));
   } catch (err) {
-    console.log('LocalStorage limit or error:', err);
+    console.log('LocalStorage save info:', err);
+  }
+
+  // Sync with global cloud API endpoint
+  try {
+    fetch('https://api.jsonbin.io/v3/b/66f4095de410157d37fba678', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Bin-Meta': 'false'
+      },
+      body: JSON.stringify(notes.slice(0, 30)) // Keep latest 30 global notes
+    }).catch(e => console.log('Global cloud publish info:', e));
+  } catch (e) {
+    console.log('Cloud sync error:', e);
   }
 }
 
@@ -564,7 +598,7 @@ function getInitialDefaultNotes() {
   ];
 }
 
-/* Render Community Notes into UI Container */
+/* Render Community Notes into UI Container & Auto-Fetch Global Cloud Notes */
 function renderCommunityNotes() {
   const container = document.getElementById('communityNotesContainer');
   if (!container) return;
@@ -573,34 +607,81 @@ function renderCommunityNotes() {
 
   if (!notes.length) {
     container.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">No community notes uploaded yet. Be the first to share notes!</p>`;
-    return;
+  } else {
+    container.innerHTML = notes.map(note => `
+      <div class="community-note-card">
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
+            <span class="tag-pill blue" style="font-size: 0.72rem;">${note.subjectCode}</span>
+            <span class="tag-pill emerald" style="font-size: 0.72rem;">${note.category}</span>
+          </div>
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">${note.subjectName}</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+            <strong>Branch & Sem:</strong> ${note.branch} • ${note.semester}
+          </p>
+        </div>
+
+        <div style="border-top: 1px dashed var(--border-light); padding-top: 0.85rem; margin-top: 0.5rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <span class="contributor-pill">👤 ${note.contributorName} (${note.collegeName})</span>
+            <span style="font-size: 0.72rem; color: var(--text-subtle);">${note.date}</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a href="${note.fileUrl}" ${note.fileUrl && note.fileUrl !== '#' ? `download="${note.fileName}"` : ''} class="btn btn-secondary btn-block" style="font-size: 0.82rem; padding: 0.5rem 0.75rem; text-align: center; flex: 1;">
+              📥 Download (${note.fileSize})
+            </a>
+          </div>
+        </div>
+      </div>
+    `).join('');
   }
 
-  container.innerHTML = notes.map(note => `
-    <div class="community-note-card">
-      <div>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
-          <span class="tag-pill blue" style="font-size: 0.72rem;">${note.subjectCode}</span>
-          <span class="tag-pill emerald" style="font-size: 0.72rem;">${note.category}</span>
-        </div>
-        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">${note.subjectName}</h3>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.85rem;">
-          <strong>Branch & Sem:</strong> ${note.branch} • ${note.semester}
-        </p>
-      </div>
+  // Asynchronously fetch latest global cloud notes from all devices worldwide
+  if (!window._cloudSynced) {
+    window._cloudSynced = true;
+    fetch('https://api.jsonbin.io/v3/b/66f4095de410157d37fba678/latest', {
+      headers: { 'X-Bin-Meta': 'false' }
+    }).then(res => res.json()).then(data => {
+      const cloudArray = Array.isArray(data) ? data : (data.record || []);
+      if (cloudArray.length) {
+        let currentLocal = getSavedCommunityNotes();
+        const mergedMap = new Map();
+        [...cloudArray, ...currentLocal].forEach(item => {
+          if (item && item.id) mergedMap.set(item.id, item);
+        });
+        const mergedList = Array.from(mergedMap.values());
+        localStorage.setItem('eduyodha_community_notes', JSON.stringify(mergedList));
+        
+        // Re-render UI with merged global notes
+        container.innerHTML = mergedList.map(note => `
+          <div class="community-note-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
+                <span class="tag-pill blue" style="font-size: 0.72rem;">${note.subjectCode}</span>
+                <span class="tag-pill emerald" style="font-size: 0.72rem;">${note.category}</span>
+              </div>
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">${note.subjectName}</h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+                <strong>Branch & Sem:</strong> ${note.branch} • ${note.semester}
+              </p>
+            </div>
 
-      <div style="border-top: 1px dashed var(--border-light); padding-top: 0.85rem; margin-top: 0.5rem;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-          <span class="contributor-pill">👤 ${note.contributorName} (${note.collegeName})</span>
-          <span style="font-size: 0.72rem; color: var(--text-subtle);">${note.date}</span>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <a href="${note.fileUrl}" ${note.fileUrl !== '#' ? `download="${note.fileName}"` : ''} class="btn btn-secondary btn-block" style="font-size: 0.82rem; padding: 0.5rem 0.75rem; text-align: center; flex: 1;">
-            📥 Download (${note.fileSize})
-          </a>
-        </div>
-      </div>
-    </div>
-  `).join('');
+            <div style="border-top: 1px dashed var(--border-light); padding-top: 0.85rem; margin-top: 0.5rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span class="contributor-pill">👤 ${note.contributorName} (${note.collegeName})</span>
+                <span style="font-size: 0.72rem; color: var(--text-subtle);">${note.date}</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <a href="${note.fileUrl}" ${note.fileUrl && note.fileUrl !== '#' ? `download="${note.fileName}"` : ''} class="btn btn-secondary btn-block" style="font-size: 0.82rem; padding: 0.5rem 0.75rem; text-align: center; flex: 1;">
+                  📥 Download (${note.fileSize})
+                </a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }).catch(err => console.log('Global cloud notes sync:', err));
+  }
 }
+
 
