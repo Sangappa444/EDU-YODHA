@@ -87,6 +87,15 @@
       <p class="page-hero-desc">
         Fast, clean, verified access to Visvesvaraya Technological University (Belagavi) exam timetables, instant results mirrors, schemes, branch-wise notes, and academic circulars.
       </p>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button type="button" class="btn btn-amber trigger-upload-modal" style="font-weight: 700; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);">
+          📤 Upload Notes / Share PDF (Free)
+        </button>
+        <a href="resources.html#community-notes" class="btn btn-secondary" style="background: rgba(255,255,255,0.15); color: #FFFFFF; border-color: rgba(255,255,255,0.3);">
+          Explore Community Uploaded Notes →
+        </a>
+      </div>
     </div>
   </section>
 
@@ -387,6 +396,112 @@
       </div>
     </div>
   </footer>
+
+  <!-- Free Notes & PDF Upload Modal -->
+  <div class="modal-overlay" id="uploadNotesModal">
+    <div class="modal-card" style="max-width: 650px;">
+      <button class="modal-close" id="uploadModalCloseBtn" aria-label="Close Modal">✕</button>
+      
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem;">
+        <div style="width: 44px; height: 44px; background: #EFF6FF; color: var(--accent-blue); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;">📤</div>
+        <div>
+          <h3 class="modal-title" style="margin-bottom: 0.15rem;">Upload Notes & Study PDFs</h3>
+          <p class="modal-subtitle" style="margin-bottom: 0;">Share handwritten notes, solved question papers, or lab manuals with thousands of students.</p>
+        </div>
+      </div>
+
+      <form id="uploadNotesForm">
+        <div class="drop-zone" id="pdfDropZone">
+          <input type="file" id="noteFileInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip" style="display: none;" required>
+          <div class="drop-zone-content" id="dropZoneContent">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--accent-blue);">📄</div>
+            <p style="font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.25rem;">Drag & drop your PDF file here or <span style="color: var(--accent-blue); text-decoration: underline; cursor: pointer;">Browse File</span></p>
+            <p style="font-size: 0.78rem; color: var(--text-subtle);">Supports PDF, DOCX, PPTX, ZIP (Max 50MB) • Free & Instant</p>
+          </div>
+          <div class="file-preview-card" id="filePreviewCard" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+                <span style="font-size: 1.5rem;">📁</span>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <div id="previewFileName" style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); text-overflow: ellipsis; overflow: hidden;">filename.pdf</div>
+                  <div id="previewFileSize" style="font-size: 0.75rem; color: var(--text-muted);">1.2 MB</div>
+                </div>
+              </div>
+              <button type="button" id="removeFileBtn" style="background: none; border: none; color: #EF4444; font-weight: 700; cursor: pointer; padding: 4px 8px;">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+          <div>
+            <label class="form-label" for="noteSubjectName">Subject Name *</label>
+            <input type="text" id="noteSubjectName" class="form-control" placeholder="e.g. Data Structures & Algo" required>
+          </div>
+          <div>
+            <label class="form-label" for="noteSubjectCode">Subject Code *</label>
+            <input type="text" id="noteSubjectCode" class="form-control" placeholder="e.g. 21CS42 / 22CS41" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 0.85rem;">
+          <div>
+            <label class="form-label" for="noteBranch">Branch / Stream *</label>
+            <select id="noteBranch" class="form-control" required>
+              <option value="">Select Branch</option>
+              <option value="CSE">Computer Science (CSE)</option>
+              <option value="ISE">Information Science (ISE)</option>
+              <option value="AI/ML">AI & Machine Learning</option>
+              <option value="ECE">Electronics & Comm (ECE)</option>
+              <option value="EEE">Electrical & Electronics</option>
+              <option value="MECH">Mechanical Engg</option>
+              <option value="CIVIL">Civil Engg</option>
+              <option value="OTHER">Other Branch</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="noteSemester">Semester *</label>
+            <select id="noteSemester" class="form-control" required>
+              <option value="">Select Sem</option>
+              <option value="1st / 2nd Sem">1st / 2nd Sem (P/C Cycle)</option>
+              <option value="3rd Sem">3rd Semester</option>
+              <option value="4th Sem">4th Semester</option>
+              <option value="5th Sem">5th Semester</option>
+              <option value="6th Sem">6th Semester</option>
+              <option value="7th Sem">7th Semester</option>
+              <option value="8th Sem">8th Semester</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="noteCategory">Category *</label>
+            <select id="noteCategory" class="form-control" required>
+              <option value="Handwritten Notes">Handwritten Notes</option>
+              <option value="Module Solved PDF">Module Solved PDF</option>
+              <option value="Question Bank / QB">Question Bank / QB</option>
+              <option value="VTU Question Papers">VTU Question Papers</option>
+              <option value="Lab Manual">Lab Manual</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.85rem;">
+          <div>
+            <label class="form-label" for="noteContributorName">Your Name *</label>
+            <input type="text" id="noteContributorName" class="form-control" placeholder="e.g. Rahul Sharma" required>
+          </div>
+          <div>
+            <label class="form-label" for="noteCollegeName">College Name *</label>
+            <input type="text" id="noteCollegeName" class="form-control" placeholder="e.g. BMSCE / RVCE / BIT" required>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.25rem;">
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);">
+            🚀 Publish & Share Notes (Free)
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="assets/js/main.js"></script>
   <script>

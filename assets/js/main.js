@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initAccordions();
   initQuickCounters();
+  initUploadNotesModal();
+  renderCommunityNotes();
 });
 
 /* 1. Header scroll effect */
@@ -308,3 +310,297 @@ function initQuickCounters() {
 
   statNumbers.forEach(el => observer.observe(el));
 }
+
+/* 8. Free Notes & PDF Upload Modal Handler */
+let currentUploadedFile = null;
+
+function initUploadNotesModal() {
+  const modal = document.getElementById('uploadNotesModal');
+  const closeBtn = document.getElementById('uploadModalCloseBtn');
+  const triggers = document.querySelectorAll('.trigger-upload-modal');
+  const dropZone = document.getElementById('pdfDropZone');
+  const fileInput = document.getElementById('noteFileInput');
+  const dropZoneContent = document.getElementById('dropZoneContent');
+  const filePreviewCard = document.getElementById('filePreviewCard');
+  const previewFileName = document.getElementById('previewFileName');
+  const previewFileSize = document.getElementById('previewFileSize');
+  const removeFileBtn = document.getElementById('removeFileBtn');
+  const uploadForm = document.getElementById('uploadNotesForm');
+
+  if (triggers.length && modal) {
+    function openModal() {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      resetFileSelection();
+    }
+
+    triggers.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal();
+      });
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+  }
+
+  if (dropZone && fileInput) {
+    // Click drop zone to select file
+    dropZone.addEventListener('click', (e) => {
+      if (e.target !== removeFileBtn) {
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    // Drag and drop handlers
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('dragover');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files[0]) {
+        handleFileSelect(dt.files[0]);
+      }
+    });
+
+    if (removeFileBtn) {
+      removeFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetFileSelection();
+      });
+    }
+  }
+
+  function handleFileSelect(file) {
+    currentUploadedFile = file;
+    if (previewFileName) previewFileName.textContent = file.name;
+    if (previewFileSize) previewFileSize.textContent = formatBytes(file.size);
+    if (dropZoneContent) dropZoneContent.style.display = 'none';
+    if (filePreviewCard) filePreviewCard.style.display = 'block';
+  }
+
+  function resetFileSelection() {
+    currentUploadedFile = null;
+    if (fileInput) fileInput.value = '';
+    if (dropZoneContent) dropZoneContent.style.display = 'block';
+    if (filePreviewCard) filePreviewCard.style.display = 'none';
+  }
+
+  function formatBytes(bytes, decimals = 1) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      if (!currentUploadedFile && !fileInput.files[0]) {
+        alert('Please select a PDF or document file to upload.');
+        return;
+      }
+
+      const fileObj = currentUploadedFile || fileInput.files[0];
+      const subjectName = document.getElementById('noteSubjectName')?.value.trim() || '';
+      const subjectCode = document.getElementById('noteSubjectCode')?.value.trim() || '';
+      const branch = document.getElementById('noteBranch')?.value || '';
+      const semester = document.getElementById('noteSemester')?.value || '';
+      const category = document.getElementById('noteCategory')?.value || '';
+      const contributorName = document.getElementById('noteContributorName')?.value.trim() || '';
+      const collegeName = document.getElementById('noteCollegeName')?.value.trim() || '';
+
+      const fileDataUrl = URL.createObjectURL(fileObj);
+
+      const newNote = {
+        id: 'note_' + Date.now(),
+        subjectName,
+        subjectCode,
+        branch,
+        semester,
+        category,
+        contributorName,
+        collegeName,
+        fileName: fileObj.name,
+        fileSize: formatBytes(fileObj.size),
+        fileUrl: fileDataUrl,
+        date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      };
+
+      // Save to localStorage
+      saveCommunityNote(newNote);
+
+      // Show success screen in modal
+      const waText = `📤 *New Student PDF Uploaded on EDU YODHA*\n\n` +
+        `📚 *Subject:* ${subjectName} (${subjectCode})\n` +
+        `🎓 *Branch & Sem:* ${branch} | ${semester}\n` +
+        `🏷️ *Category:* ${category}\n` +
+        `📄 *File:* ${fileObj.name} (${formatBytes(fileObj.size)})\n` +
+        `👤 *Contributed By:* ${contributorName} (${collegeName})\n\n` +
+        `Please verify and add to permanent VTU repository.`;
+
+      const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+
+      uploadForm.innerHTML = `
+        <div style="text-align: center; padding: 1.5rem 1rem;">
+          <div style="width: 56px; height: 56px; background: #D1FAE5; color: #059669; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.75rem;">✓</div>
+          <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Notes Uploaded Successfully!</h3>
+          <p style="color: #475569; font-size: 0.92rem; margin-bottom: 1.25rem;">Your document <strong>${fileObj.name}</strong> is now listed under Community Contributed Notes.</p>
+          
+          <div style="display: flex; gap: 10px; flex-direction: column; margin-bottom: 1.25rem;">
+            <a href="${fileDataUrl}" download="${fileObj.name}" class="btn btn-primary btn-block" style="font-weight: 700;">⬇ Download Uploaded PDF</a>
+            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background-color: #25D366; color: #FFFFFF; border: none; font-weight: 700;">Share to Official Desk via WhatsApp ↗</a>
+          </div>
+
+          <button type="button" class="btn btn-secondary btn-block" onclick="location.reload()">Done / Close</button>
+        </div>
+      `;
+
+      // Refresh community notes view
+      renderCommunityNotes();
+    });
+  }
+}
+
+/* Save note to local storage */
+function saveCommunityNote(note) {
+  let notes = getSavedCommunityNotes();
+  notes.unshift(note);
+  try {
+    localStorage.setItem('eduyodha_community_notes', JSON.stringify(notes));
+  } catch (err) {
+    console.log('LocalStorage limit or error:', err);
+  }
+}
+
+function getSavedCommunityNotes() {
+  try {
+    const raw = localStorage.getItem('eduyodha_community_notes');
+    return raw ? JSON.parse(raw) : getInitialDefaultNotes();
+  } catch (err) {
+    return getInitialDefaultNotes();
+  }
+}
+
+function getInitialDefaultNotes() {
+  return [
+    {
+      id: 'default_1',
+      subjectName: 'Design & Analysis of Algorithms',
+      subjectCode: '21CS42',
+      branch: 'CSE / ISE',
+      semester: '4th Sem',
+      category: 'Handwritten Notes',
+      contributorName: 'Priya N.',
+      collegeName: 'RVCE Bengaluru',
+      fileName: 'DAA_Complete_Module_1_to_5.pdf',
+      fileSize: '4.8 MB',
+      fileUrl: '#',
+      date: '24 Sep 2026'
+    },
+    {
+      id: 'default_2',
+      subjectName: 'Engineering Mathematics III',
+      subjectCode: '21MAT31',
+      branch: 'All Branches',
+      semester: '3rd Sem',
+      category: 'Module Solved PDF',
+      contributorName: 'Karthik S.',
+      collegeName: 'BMSCE',
+      fileName: 'Maths_3_Fourier_Series_Transforms.pdf',
+      fileSize: '3.2 MB',
+      fileUrl: '#',
+      date: '23 Sep 2026'
+    },
+    {
+      id: 'default_3',
+      subjectName: 'Operating Systems',
+      subjectCode: '21CS44',
+      branch: 'CSE / AI',
+      semester: '4th Sem',
+      category: 'VTU Question Papers',
+      contributorName: 'Ananya R.',
+      collegeName: 'MSRIT',
+      fileName: 'OS_Deadlocks_CPU_Scheduling_QB.pdf',
+      fileSize: '2.1 MB',
+      fileUrl: '#',
+      date: '22 Sep 2026'
+    }
+  ];
+}
+
+/* Render Community Notes into UI Container */
+function renderCommunityNotes() {
+  const container = document.getElementById('communityNotesContainer');
+  if (!container) return;
+
+  const notes = getSavedCommunityNotes();
+
+  if (!notes.length) {
+    container.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">No community notes uploaded yet. Be the first to share notes!</p>`;
+    return;
+  }
+
+  container.innerHTML = notes.map(note => `
+    <div class="community-note-card">
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
+          <span class="tag-pill blue" style="font-size: 0.72rem;">${note.subjectCode}</span>
+          <span class="tag-pill emerald" style="font-size: 0.72rem;">${note.category}</span>
+        </div>
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">${note.subjectName}</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+          <strong>Branch & Sem:</strong> ${note.branch} • ${note.semester}
+        </p>
+      </div>
+
+      <div style="border-top: 1px dashed var(--border-light); padding-top: 0.85rem; margin-top: 0.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span class="contributor-pill">👤 ${note.contributorName} (${note.collegeName})</span>
+          <span style="font-size: 0.72rem; color: var(--text-subtle);">${note.date}</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <a href="${note.fileUrl}" ${note.fileUrl !== '#' ? `download="${note.fileName}"` : ''} class="btn btn-secondary btn-block" style="font-size: 0.82rem; padding: 0.5rem 0.75rem; text-align: center; flex: 1;">
+            📥 Download (${note.fileSize})
+          </a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+

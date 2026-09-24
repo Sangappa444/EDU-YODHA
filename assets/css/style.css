@@ -1542,3 +1542,62 @@ textarea.form-control {
   font-weight: 600;
 }
 
+/* Free Community Notes Upload & Drop Zone Styling */
+.drop-zone {
+  border: 2px dashed var(--accent-blue);
+  background: #F0F7FF;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  background: #E0EFFE;
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.file-preview-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+
+.community-note-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  position: relative;
+}
+
+.community-note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: #93C5FD;
+}
+
+.contributor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+
