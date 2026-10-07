@@ -27,7 +27,8 @@ export default defineConfig({
         kcetOptionGuide: resolve(__dirname, 'kcet-option-entry-counseling-guide.html'),
         vtuGraceGuide: resolve(__dirname, 'vtu-grace-marks-backlog-rules-guide.html'),
         cseRoadmapGuide: resolve(__dirname, 'cse-engineering-roadmap-guide.html'),
-        resourceDetail: resolve(__dirname, 'resource-detail.html')
+        resourceDetail: resolve(__dirname, 'resource-detail.html'),
+        dashboard: resolve(__dirname, 'dashboard.html')
       }
     }
   },

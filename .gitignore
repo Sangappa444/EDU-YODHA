@@ -1,4 +1,21 @@
+# Frontend build output
 node_modules
 dist
 .DS_Store
 Thumbs.db
+
+# ── Environment / Secrets — NEVER commit these ──────────────────
+.env
+.env.local
+.env.production
+.env.production.local
+server/.env
+server/.env.local
+server/.env.production
+
+# Server dependencies
+server/node_modules
+
+# Scratch / debug scripts
+fix_ads.ps1
+fix_topbar.ps1
