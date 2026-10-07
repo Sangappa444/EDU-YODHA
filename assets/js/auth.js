@@ -5,12 +5,12 @@
 // =============================================================================
 
 // ── API Base URL ──────────────────────────────────────────────────────────────
-// Dev  → '' (Vite proxy forwards /api/* to http://localhost:5000)
-// Prod → 'https://api.eduyodha.com'
+// Dev (Localhost)  → 'http://localhost:5000'
+// Production       → 'https://api.eduyodha.com'
 const API_BASE_URL = (() => {
   const { hostname } = window.location;
   return (hostname === 'localhost' || hostname === '127.0.0.1')
-    ? ''
+    ? 'http://localhost:5000'
     : 'https://api.eduyodha.com';
 })();
 
