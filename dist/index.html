@@ -10,22 +10,28 @@
   <meta name="description" content="EDU YODHA is Karnataka's premier student-first ed-tech platform offering VTU updates, KCET & COMEDK guidance, domain-specific internships, study materials, and career resources.">
   <meta name="keywords" content="Edu Yodha, VTU updates, VTU results, KCET updates, KCET cutoffs, engineering internships, computer science internships, student resources">
   <link rel="icon" type="image/png" href="/assets/logo-Bh1kQVwJ.png">
-  <script type="module" crossorigin src="/assets/main--DRzqg3-.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/main-DRmA3mkX.css">
+  <!-- Razorpay Standard Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script type="module" crossorigin src="/assets/main-Cf8szccN.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-DJGnWWAr.css">
 </head>
 <body>
 
   <!-- Top Notification Bar -->
   <div class="topbar">
-    <div class="topbar-badge">Live Updates</div>
-    <span>VTU 2026 Examination & Results, KCET 2026 Counseling Updates & Summer Internships Now Open!</span>
-    <div class="topbar-links">
-      <a href="https://whatsapp.com/channel/0029Vb27q0JKwqSbZewkPh1r" target="_blank" rel="noopener noreferrer" class="topbar-link">
-        Join Official WhatsApp ↗
-      </a>
-      <a href="https://youtube.com/@eduyodha?si=U2kOwQNEVUqHb9kp" target="_blank" rel="noopener noreferrer" class="topbar-link">
-        YouTube Channel ↗
-      </a>
+    <div class="container topbar-inner">
+      <div class="topbar-content">
+        <span class="topbar-badge">Live Updates</span>
+        <span class="topbar-text">VTU 2026 Examination & Results, KCET 2026 Counseling Updates & Summer Internships Now Open!</span>
+      </div>
+      <div class="topbar-links">
+        <a href="https://whatsapp.com/channel/0029Vb27q0JKwqSbZewkPh1r" target="_blank" rel="noopener noreferrer" class="topbar-link">
+          WhatsApp Channel ↗
+        </a>
+        <a href="https://youtube.com/@eduyodha?si=U2kOwQNEVUqHb9kp" target="_blank" rel="noopener noreferrer" class="topbar-link">
+          YouTube Channel ↗
+        </a>
+      </div>
     </div>
   </div>
 
@@ -45,6 +51,7 @@
         <a href="index.html" class="nav-link active">Home</a>
         <a href="vtu.html" class="nav-link">VTU</a>
         <a href="internships.html" class="nav-link">Internships</a>
+        <a href="articles.html" class="nav-link">Articles</a>
         <a href="courses.html" class="nav-link">Courses</a>
         <a href="resources.html" class="nav-link">Resources</a>
         <a href="kcet.html" class="nav-link">KCET</a>
@@ -54,6 +61,11 @@
 
       <!-- Desktop CTA -->
       <div class="nav-cta">
+        <button type="button" class="nav-search-btn trigger-search-modal" title="Search platform">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <span>Search...</span>
+          <kbd class="kbd-shortcut">Ctrl K</kbd>
+        </button>
         <button type="button" class="btn btn-amber trigger-upload-modal" style="font-size: 0.82rem; padding: 0.5rem 0.85rem; font-weight: 700;">📤 Upload Notes</button>
         <a href="internships.html" class="btn btn-primary">Explore Internships</a>
         <button class="mobile-toggle" aria-label="Open Navigation Menu">
@@ -81,6 +93,7 @@
       <a href="index.html" class="mobile-nav-link active">Home <span>→</span></a>
       <a href="vtu.html" class="mobile-nav-link">VTU Student Hub <span>→</span></a>
       <a href="internships.html" class="mobile-nav-link">Internships <span>→</span></a>
+      <a href="articles.html" class="mobile-nav-link">Articles & Guides <span>→</span></a>
       <a href="courses.html" class="mobile-nav-link">Courses & Learning <span>→</span></a>
       <a href="resources.html" class="mobile-nav-link">Student Resources <span>→</span></a>
       <a href="kcet.html" class="mobile-nav-link">KCET & Admissions <span>→</span></a>
@@ -891,9 +904,10 @@
         </div>
         <div class="footer-legal-links">
           <a href="about.html">About Us</a>
-          <a href="contact.html">Privacy Policy</a>
-          <a href="contact.html">Terms & Conditions</a>
-          <a href="contact.html">Disclaimer</a>
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-and-conditions.html">Terms & Conditions</a>
+          <a href="disclaimer.html">Disclaimer</a>
+          <a href="editorial-policy.html">Editorial Policy</a>
         </div>
       </div>
     </div>
@@ -903,13 +917,29 @@
   <div class="modal-overlay" id="applyModal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title">Apply for EDU YODHA Internship</h3>
+        <h3 class="modal-title">Enroll & Pay for EDU YODHA Internship</h3>
         <button class="modal-close" id="modalCloseBtn" aria-label="Close Modal">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 1.25rem;">
-          Fill out this form to register for our domain internship program. Mentors will review your application within 24–48 hours.
+        <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 1rem;">
+          Register for your chosen technical domain and complete enrollment securely via Razorpay Live Payment Gateway.
         </p>
+        
+        <!-- Live Payment Summary Box -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.85rem; color: #64748B;">Selected Program:</span>
+            <strong id="selectedDomainBadge" style="font-size: 0.88rem; color: #0F172A; text-align: right;">Select Domain Below</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #CBD5E1; padding-top: 0.4rem; margin-top: 0.4rem;">
+            <span style="font-size: 0.88rem; color: #334155; font-weight: 600;">Program Fee:</span>
+            <strong style="font-size: 1.2rem; color: #059669;" id="modalPriceDisplay">₹999</strong>
+          </div>
+          <div style="margin-top: 0.4rem; font-size: 0.75rem; color: #64748B; display: flex; align-items: center; gap: 4px;">
+            <span>🛡️ 256-Bit Encrypted Razorpay Checkout (UPI, Cards, NetBanking, Wallet)</span>
+          </div>
+        </div>
+
         <form id="internshipApplyForm">
           <div class="form-group">
             <label class="form-label" for="applyFullName">Full Name *</label>
@@ -949,16 +979,16 @@
             <label class="form-label" for="applyDomainSelect">Preferred Internship Domain *</label>
             <select id="applyDomainSelect" class="form-control" required>
               <option value="">Choose Domain</option>
-              <option value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</option>
-              <option value="Data Science">Data Science</option>
-              <option value="Web Development">Web Development</option>
-              <option value="Java Development">Java Development</option>
-              <option value="Python Development">Python Development</option>
-              <option value="Cyber Security">Cyber Security</option>
-              <option value="Cloud Computing">Cloud Computing</option>
-              <option value="Full Stack Development">Full Stack Development</option>
-              <option value="Data Analytics">Data Analytics</option>
-              <option value="Internet of Things (IoT)">Internet of Things (IoT)</option>
+              <option value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning (₹999)</option>
+              <option value="Data Science">Data Science (₹999)</option>
+              <option value="Web Development">Web Development (₹999)</option>
+              <option value="Java Development">Java Development (₹999)</option>
+              <option value="Python Development">Python Development (₹999)</option>
+              <option value="Cyber Security">Cyber Security (₹999)</option>
+              <option value="Cloud Computing">Cloud Computing (₹999)</option>
+              <option value="Full Stack Development">Full Stack Development (₹999)</option>
+              <option value="Data Analytics">Data Analytics (₹999)</option>
+              <option value="Internet of Things (IoT)">Internet of Things (IoT) (₹999)</option>
             </select>
           </div>
 
@@ -967,7 +997,9 @@
             <input type="url" id="applyResume" class="form-control" placeholder="https://linkedin.com/in/username">
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem;">Submit Application</button>
+          <button type="submit" id="paySubmitBtn" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem; background-color: #0284C7; font-weight: 700;">
+            Pay ₹999 & Register via Razorpay 💳
+          </button>
         </form>
       </div>
     </div>

@@ -1,6 +1,8 @@
-// Configuration: EDU YODHA WhatsApp phone number (country code without '+' or spaces)
+// Configuration: EDU YODHA WhatsApp & Razorpay credentials
 const EDU_YODHA_WHATSAPP_NUMBER = '917353129776';
 const EDU_YODHA_WHATSAPP_CHANNEL = 'https://whatsapp.com/channel/0029Vb27q0JKwqSbZewkPh1r';
+const RAZORPAY_KEY_ID = 'rzp_live_Tku5aRKgb2tf28';
+const DEFAULT_INTERNSHIP_PRICE = 999;
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
@@ -13,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuickCounters();
   initUploadNotesModal();
   renderCommunityNotes();
+  initGlobalSearchModal();
 });
 
 /* 1. Header scroll effect */
@@ -114,13 +117,34 @@ function initDomainFilters() {
   });
 }
 
-/* 5. Internship Application Modal & WhatsApp Submission */
+/* 5. Internship Application Modal & Razorpay Live Payment Gateway Integration */
 function initApplicationModal() {
   const modal = document.getElementById('applyModal');
   const closeBtn = document.getElementById('modalCloseBtn');
   const applyTriggers = document.querySelectorAll('.trigger-apply-modal');
   const applyForm = document.getElementById('internshipApplyForm');
   const domainSelect = document.getElementById('applyDomainSelect');
+  const selectedDomainBadge = document.getElementById('selectedDomainBadge');
+  const modalPriceDisplay = document.getElementById('modalPriceDisplay');
+  const paySubmitBtn = document.getElementById('paySubmitBtn');
+
+  function updateModalSummary(domainName) {
+    if (selectedDomainBadge) {
+      selectedDomainBadge.textContent = domainName || 'Select Domain Below';
+    }
+    if (modalPriceDisplay) {
+      modalPriceDisplay.textContent = `₹${DEFAULT_INTERNSHIP_PRICE}`;
+    }
+    if (paySubmitBtn) {
+      paySubmitBtn.innerHTML = `Pay ₹${DEFAULT_INTERNSHIP_PRICE} & Register via Razorpay 💳`;
+    }
+  }
+
+  if (domainSelect) {
+    domainSelect.addEventListener('change', () => {
+      updateModalSummary(domainSelect.value);
+    });
+  }
 
   if (applyTriggers.length && modal) {
     function openModal(defaultDomain = '') {
@@ -129,6 +153,7 @@ function initApplicationModal() {
       if (domainSelect && defaultDomain) {
         domainSelect.value = defaultDomain;
       }
+      updateModalSummary(domainSelect?.value || defaultDomain);
     }
 
     function closeModal() {
@@ -165,45 +190,160 @@ function initApplicationModal() {
       const college = document.getElementById('applyCollege')?.value.trim() || '';
       const year = document.getElementById('applyYear')?.value.trim() || '';
       const domain = document.getElementById('applyDomainSelect')?.value.trim() || '';
+      const resume = document.getElementById('applyResume')?.value.trim() || 'Not Provided';
+      const price = DEFAULT_INTERNSHIP_PRICE;
+
+      if (!domain) {
+        alert('Please select an internship domain.');
+        return;
+      }
 
       const submitBtn = applyForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Opening WhatsApp...</span>';
+        submitBtn.innerHTML = '<span>Opening Secure Razorpay Gateway... 🔒</span>';
       }
 
-      const messageText = `🎓 *New Internship Registration - EDU YODHA*\n\n` +
-        `📌 *Full Name:* ${fullName}\n` +
-        `📧 *Email:* ${email}\n` +
-        `📱 *Student WhatsApp:* ${phone}\n` +
-        `🏫 *College:* ${college}\n` +
-        `📚 *Current Year:* ${year}\n` +
-        `💻 *Selected Domain:* ${domain}\n\n` +
-        `Please confirm my application and send onboarding details.`;
+      // Ensure Razorpay SDK is loaded
+      if (typeof window.Razorpay === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => launchRazorpayCheckout();
+        script.onerror = () => {
+          alert('Failed to load Razorpay payment gateway script. Please check your internet connection.');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `Pay ₹${price} & Register via Razorpay 💳`;
+          }
+        };
+        document.body.appendChild(script);
+      } else {
+        launchRazorpayCheckout();
+      }
 
-      const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+      function launchRazorpayCheckout() {
+        const options = {
+          key: RAZORPAY_KEY_ID,
+          amount: price * 100, // Amount in paise
+          currency: 'INR',
+          name: 'EDU YODHA',
+          description: `Internship Enrollment - ${domain}`,
+          image: 'assets/images/logo.png',
+          handler: function (response) {
+            const paymentId = response.razorpay_payment_id || ('PAY_' + Date.now());
+            handlePaymentSuccess({
+              fullName,
+              email,
+              phone,
+              college,
+              year,
+              domain,
+              resume,
+              price,
+              paymentId
+            });
+          },
+          prefill: {
+            name: fullName,
+            email: email,
+            contact: phone
+          },
+          notes: {
+            college_name: college,
+            academic_year: year,
+            internship_domain: domain
+          },
+          theme: {
+            color: '#0284C7'
+          },
+          modal: {
+            ondismiss: function () {
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Pay ₹${price} & Register via Razorpay 💳`;
+              }
+            }
+          }
+        };
 
-      // Launch WhatsApp chat
-      window.open(waUrl, '_blank');
+        try {
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', function (response) {
+            alert(`Payment Failed: ${response.error?.description || 'Transaction was canceled or failed.'}`);
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = `Pay ₹${price} & Register via Razorpay 💳`;
+            }
+          });
+          rzp.open();
+        } catch (err) {
+          console.error('Razorpay initialization error:', err);
+          alert('Could not initialize Razorpay checkout popup. Please try again.');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `Pay ₹${price} & Register via Razorpay 💳`;
+          }
+        }
+      }
 
-      setTimeout(() => {
+      function handlePaymentSuccess(data) {
+        const messageText = `🎉 *EDU YODHA Enrollment & Payment Confirmation*\n\n` +
+          `💳 *Razorpay Payment ID:* ${data.paymentId}\n` +
+          `💰 *Amount Paid:* ₹${data.price}\n` +
+          `📌 *Full Name:* ${data.fullName}\n` +
+          `📧 *Email:* ${data.email}\n` +
+          `📱 *Student WhatsApp:* ${data.phone}\n` +
+          `🏫 *College:* ${data.college}\n` +
+          `📚 *Current Year:* ${data.year}\n` +
+          `💻 *Selected Domain:* ${data.domain}\n` +
+          `🔗 *Resume/LinkedIn:* ${data.resume}\n\n` +
+          `My payment is complete. Please verify and issue my offer letter & LMS access.`;
+
+        const waUrl = `https://wa.me/${EDU_YODHA_WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
+
+        // Open WhatsApp automatically
+        window.open(waUrl, '_blank');
+
         applyForm.innerHTML = `
           <div style="text-align: center; padding: 1.5rem 1rem;">
-            <div style="width: 56px; height: 56px; background: #D1FAE5; color: #059669; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.75rem;">✓</div>
-            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Application Sent via WhatsApp!</h3>
-            <p style="color: #475569; font-size: 0.92rem; margin-bottom: 1.25rem;">Your registration details were formatted for WhatsApp. If chat did not open automatically, click below:</p>
-            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="background-color: #25D366; border: none; margin-bottom: 1rem; font-weight: 700;">Open WhatsApp Chat ↗</a>
+            <div style="width: 64px; height: 64px; background: #D1FAE5; color: #059669; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 2rem;">✓</div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #0F172A; margin-bottom: 0.35rem;">Payment & Registration Successful!</h3>
+            <p style="color: #475569; font-size: 0.9rem; margin-bottom: 1.25rem;">
+              Thank you, <strong>${data.fullName}</strong>! Your payment of <strong>₹${data.price}</strong> has been received via Razorpay.
+            </p>
             
-            <div style="background: #F0FDF4; border: 1px dashed #25D366; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; text-align: left;">
-              <strong style="color: #166534; font-size: 0.92rem; display: block; margin-bottom: 0.25rem;">📢 Don't miss live updates!</strong>
-              <p style="font-size: 0.85rem; color: #15803D; margin-bottom: 0.75rem;">Join the official EDU YODHA WhatsApp Channel for daily VTU circulars, KCET cutoffs, and batch announcements.</p>
-              <a href="${EDU_YODHA_WHATSAPP_CHANNEL}" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background-color: #059669; color: #FFFFFF; border: none; font-size: 0.88rem; padding: 0.6rem 1rem; text-align: center;">Join WhatsApp Channel ↗</a>
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; text-align: left; font-size: 0.88rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                <span style="color: #64748B;">Payment ID:</span>
+                <strong style="color: #0284C7; font-family: monospace;">${data.paymentId}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                <span style="color: #64748B;">Program:</span>
+                <strong style="color: #0F172A;">${data.domain}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                <span style="color: #64748B;">Amount Paid:</span>
+                <strong style="color: #059669;">₹${data.price} (Paid via Razorpay)</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748B;">College:</span>
+                <span style="color: #334155;">${data.college} (${data.year})</span>
+              </div>
             </div>
 
-            <button type="button" class="btn btn-secondary btn-block" onclick="location.reload()">Done</button>
+            <div style="display: flex; gap: 10px; flex-direction: column; margin-bottom: 1.25rem;">
+              <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block" style="background-color: #25D366; border: none; font-weight: 700; padding: 0.8rem;">
+                Send Payment Receipt to Official Desk via WhatsApp ↗
+              </a>
+              <a href="${EDU_YODHA_WHATSAPP_CHANNEL}" target="_blank" rel="noopener noreferrer" class="btn btn-block" style="background-color: #059669; color: #FFFFFF; border: none; font-size: 0.88rem; padding: 0.6rem 1rem; text-align: center;">
+                Join Official WhatsApp Announcements Channel ↗
+              </a>
+            </div>
+
+            <button type="button" class="btn btn-secondary btn-block" onclick="location.reload()">Done / Close</button>
           </div>
         `;
-      }, 500);
+      }
     });
   }
 }
@@ -683,5 +823,142 @@ function renderCommunityNotes() {
     }).catch(err => console.log('Global cloud notes sync:', err));
   }
 }
+
+/* 9. Global Interactive Search Modal (Ctrl+K or /) */
+function initGlobalSearchModal() {
+  const searchIndex = [
+    { title: "VTU Official Results & Grade Portal Mirror", category: "VTU", url: "vtu.html#results", badge: "Live" },
+    { title: "VTU Official Notifications & Timetables", category: "VTU", url: "vtu.html#circulars", badge: "Updated" },
+    { title: "VTU SGPA to CGPA & Percentage Calculator", category: "VTU Tool", url: "vtu.html#sgpa-calculator", badge: "Calculator" },
+    { title: "VTU SGPA & CGPA Calculation Guide 2026", category: "Master Guide", url: "vtu-sgpa-cgpa-calculator-guide.html", badge: "Guide" },
+    { title: "VTU Revaluation & Challenge Valuation Rules", category: "Master Guide", url: "vtu-revaluation-challenge-valuation-guide.html", badge: "Guide" },
+    { title: "VTU Grace Marks & Backlog Rules Guide", category: "Master Guide", url: "vtu-grace-marks-backlog-rules-guide.html", badge: "Guide" },
+    { title: "KCET Option Entry & Counseling Strategy Guide", category: "KCET Guide", url: "kcet-option-entry-counseling-guide.html", badge: "Guide" },
+    { title: "KCET Engineering Cutoff Ranks (2025-2026)", category: "KCET", url: "kcet.html#cutoffs", badge: "Cutoffs" },
+    { title: "KCET Document Verification Checklist", category: "KCET", url: "kcet.html#verification", badge: "Checklist" },
+    { title: "Full-Stack Web Development Internship", category: "Internship", url: "internships.html#webdev", badge: "₹999" },
+    { title: "Python & Data Science Internship", category: "Internship", url: "internships.html#python", badge: "₹999" },
+    { title: "AI & Machine Learning Internship", category: "Internship", url: "internships.html#aiml", badge: "₹999" },
+    { title: "Cyber Security & Ethical Hacking Internship", category: "Internship", url: "internships.html#cyber", badge: "₹999" },
+    { title: "CAD / CAM Mechanical Engineering Internship", category: "Internship", url: "internships.html#cad", badge: "₹999" },
+    { title: "VLSI & Embedded Systems Internship", category: "Internship", url: "internships.html#vlsi", badge: "₹999" },
+    { title: "CSE Engineering Roadmap & Placement Guide", category: "Master Guide", url: "cse-engineering-roadmap-guide.html", badge: "Roadmap" },
+    { title: "Free VTU Notes & Solved Papers Repository", category: "Resources", url: "resources.html", badge: "Notes" },
+    { title: "Upload & Share Notes Community Modal", category: "Tool", url: "resources.html#upload-notes", badge: "Community" }
+  ];
+
+  // Inject Search Modal Overlay HTML if not present
+  if (!document.getElementById('globalSearchOverlay')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'globalSearchOverlay';
+    overlay.className = 'search-modal-overlay';
+    overlay.innerHTML = `
+      <div class="search-modal-card">
+        <div class="search-input-header">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input type="text" id="globalSearchInput" placeholder="Search VTU circulars, KCET cutoffs, notes, guides, internships..." autocomplete="off">
+          <button type="button" id="closeSearchBtn" style="background:none; border:none; cursor:pointer; color:var(--text-subtle); font-size:1.2rem;">✕</button>
+        </div>
+        <div class="search-results-box" id="globalSearchResults">
+          <div style="padding: 1.5rem; text-align: center; color: var(--text-subtle); font-size: 0.9rem;">
+            Type to search across VTU, KCET, Notes, Guides, and Programs...
+          </div>
+        </div>
+        <div class="search-footer-hints">
+          <span><kbd class="kbd-shortcut">↑</kbd> <kbd class="kbd-shortcut">↓</kbd> Navigate</span>
+          <span><kbd class="kbd-shortcut">ESC</kbd> Close</span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  const overlay = document.getElementById('globalSearchOverlay');
+  const input = document.getElementById('globalSearchInput');
+  const resultsContainer = document.getElementById('globalSearchResults');
+  const closeBtn = document.getElementById('closeSearchBtn');
+
+  function openSearch() {
+    if (!overlay) return;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (input) {
+      input.value = '';
+      input.focus();
+      renderSearchResults('');
+    }
+  }
+
+  function closeSearch() {
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Bind trigger buttons with .trigger-search-modal
+  document.querySelectorAll('.trigger-search-modal').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSearch();
+    });
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', closeSearch);
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeSearch();
+    });
+  }
+
+  // Keyboard shortcut Ctrl+K or /
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      openSearch();
+    } else if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) {
+      closeSearch();
+    }
+  });
+
+  // Filter input logic
+  if (input) {
+    input.addEventListener('input', (e) => {
+      renderSearchResults(e.target.value.trim());
+    });
+  }
+
+  function renderSearchResults(query) {
+    if (!resultsContainer) return;
+    const q = query.toLowerCase();
+
+    const filtered = searchIndex.filter(item => 
+      !q || item.title.toLowerCase().includes(q) || item.category.toLowerCase().includes(q)
+    );
+
+    if (!filtered.length) {
+      resultsContainer.innerHTML = `
+        <div style="padding: 2rem; text-align: center; color: var(--text-subtle);">
+          No results found for "<strong>${escapeHtml(query)}</strong>"
+        </div>
+      `;
+      return;
+    }
+
+    resultsContainer.innerHTML = filtered.map(item => `
+      <a href="${item.url}" class="search-result-item" onclick="document.getElementById('globalSearchOverlay').classList.remove('active'); document.body.style.overflow='';">
+        <div>
+          <div class="search-result-item-title">${escapeHtml(item.title)}</div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(item.category)}</span>
+        </div>
+        <span class="search-result-item-badge badge-tag blue">${escapeHtml(item.badge)}</span>
+      </a>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+}
+
 
 
