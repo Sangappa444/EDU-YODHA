@@ -73,18 +73,19 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: err.message || 'Internal Server Error' });
 });
 
-// ── Start server after DB connects ───────────────────────────
+// ── Start server & connect DB ────────────────────────────────
 async function startServer() {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`✅ EDU YODHA server running on port ${PORT}`);
-      console.log(`   Environment : ${process.env.NODE_ENV || 'development'}`);
-    });
-  } catch (err) {
-    console.error('❌ Failed to start server:', err.message);
-    process.exit(1);
-  }
+  app.listen(PORT, async () => {
+    console.log(`✅ EDU YODHA server running on http://localhost:${PORT}`);
+    console.log(`   Environment : ${process.env.NODE_ENV || 'development'}`);
+
+    try {
+      await connectDB();
+    } catch (err) {
+      console.warn('⚠️  MongoDB connection pending:', err.message);
+      console.warn('👉 If on localhost, verify your IP is whitelisted in MongoDB Atlas Network Access.');
+    }
+  });
 }
 
 startServer();

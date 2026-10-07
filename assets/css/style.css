@@ -2862,9 +2862,85 @@ textarea.form-control {
   margin-bottom: 1.25rem;
 }
 
+/* Google Sign-In button */
+.auth-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.78rem 1.25rem;
+  background: #ffffff;
+  border: 1.5px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #3c4043;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 1rem;
+  min-height: 48px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.auth-google-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #bbb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
+}
+
+.auth-google-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* OR divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--text-subtle);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+}
+
 /* ==========================================================================
-   Navbar Auth — User Avatar & Dropdown
+   Navbar Auth — User Avatar & Dropdown & Sign In Button
    ========================================================================== */
+
+.btn-auth-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--accent-blue, #2563EB);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-md, 8px);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.btn-auth-signin:hover {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
 
 .auth-user-menu {
   position: relative;

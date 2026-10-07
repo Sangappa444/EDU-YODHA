@@ -148,12 +148,34 @@ function initApplicationModal() {
 
   if (applyTriggers.length && modal) {
     function openModal(defaultDomain = '') {
+      // Require authentication before applying for internships
+      if (window.EduYodhaAuth && !window.EduYodhaAuth.isLoggedIn()) {
+        window.EduYodhaAuth.openAuthModal('login');
+        setTimeout(() => {
+          window.EduYodhaAuth.showAuthAlert('error', '🔒 Please sign in first to apply for an internship.');
+        }, 60);
+        return;
+      }
+
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
       if (domainSelect && defaultDomain) {
         domainSelect.value = defaultDomain;
       }
       updateModalSummary(domainSelect?.value || defaultDomain);
+
+      // Auto-fill logged-in student info
+      if (window.EduYodhaAuth && window.EduYodhaAuth.isLoggedIn()) {
+        const user = window.EduYodhaAuth.getCurrentUser();
+        const fullNameInput = document.getElementById('applyFullName');
+        const emailInput = document.getElementById('applyEmail');
+        if (fullNameInput && !fullNameInput.value) {
+          fullNameInput.value = window.EduYodhaAuth.getUserDisplayName(user);
+        }
+        if (emailInput && !emailInput.value && user?.email) {
+          emailInput.value = user.email;
+        }
+      }
     }
 
     function closeModal() {
@@ -469,8 +491,26 @@ function initUploadNotesModal() {
 
   if (triggers.length && modal) {
     function openModal() {
+      // Require authentication before uploading notes
+      if (window.EduYodhaAuth && !window.EduYodhaAuth.isLoggedIn()) {
+        window.EduYodhaAuth.openAuthModal('login');
+        setTimeout(() => {
+          window.EduYodhaAuth.showAuthAlert('error', '🔒 Please sign in first to upload notes.');
+        }, 60);
+        return;
+      }
+
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      // Auto-fill author name for logged-in user
+      if (window.EduYodhaAuth && window.EduYodhaAuth.isLoggedIn()) {
+        const user = window.EduYodhaAuth.getCurrentUser();
+        const authorInput = document.getElementById('noteAuthor');
+        if (authorInput && !authorInput.value) {
+          authorInput.value = window.EduYodhaAuth.getUserDisplayName(user);
+        }
+      }
     }
 
     function closeModal() {

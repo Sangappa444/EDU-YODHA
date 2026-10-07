@@ -35,8 +35,9 @@ const clientOptions = {
   maxPoolSize: 10,
   minPoolSize: 2,
   maxIdleTimeMS: 30000,
-  connectTimeoutMS: 10000,
-  socketTimeoutMS: 45000,
+  connectTimeoutMS: 8000,   // fail fast if Atlas is unreachable (e.g. IP not whitelisted)
+  socketTimeoutMS: 30000,
+  serverSelectionTimeoutMS: 8000,  // don't hang — surface the error quickly
 };
 
 // ── Singleton client (connection reuse / pooling) ─────────────

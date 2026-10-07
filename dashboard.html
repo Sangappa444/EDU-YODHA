@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Google AdSense -->
@@ -367,7 +367,7 @@
   </footer>
 
   <script type="module" src="assets/js/main.js"></script>
-  <script defer src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
   <script>
     // Dashboard-specific logic
     function switchDashPanel(panelId) {
@@ -403,21 +403,22 @@
       document.getElementById('dashboardContent').style.display = 'block';
       document.getElementById('dashboardAuthGate').style.display = 'none';
 
-      const user = window.EduYodhaAuth.getCurrentUser();
-      const name = window.EduYodhaAuth.getUserDisplayName(user);
-      const email = user?.profile?.email || '';
+      const user     = window.EduYodhaAuth.getCurrentUser();
+      const name     = window.EduYodhaAuth.getUserDisplayName(user);
+      const email    = user?.email || '';
       const initials = name.slice(0, 2).toUpperCase();
 
       // Set profile info
-      document.getElementById('dashAvatarLg').textContent = initials;
-      document.getElementById('dashUserName').textContent = name;
-      document.getElementById('dashUserEmail').textContent = email;
-      document.getElementById('settingsEmail').value = email;
-      document.getElementById('settingsName').value = name;
+      document.getElementById('dashAvatarLg').textContent   = initials;
+      document.getElementById('dashUserName').textContent    = name;
+      document.getElementById('dashUserEmail').textContent   = email;
+      document.getElementById('settingsEmail').value         = email;
+      document.getElementById('settingsName').value          = name;
 
       // Load stats from localStorage
       const notes = JSON.parse(localStorage.getItem('eduyodha_community_notes') || '[]');
-      const userNotes = notes.filter(n => n.uploadedBy === (user?.id || ''));
+      const userId = user?.id || user?._id || '';
+      const userNotes = notes.filter(n => n.uploadedBy === userId.toString());
       document.getElementById('statUploads').textContent = userNotes.length;
       document.getElementById('statSaved').textContent = '0';
       document.getElementById('statInternships').textContent = '0';
@@ -460,12 +461,13 @@
       activatePanelFromHash();
     }
 
-    // Wait for auth to be ready then load dashboard
+    // Wait for auth.js to initialize then load dashboard
     document.addEventListener('DOMContentLoaded', () => {
-      // Give auth.js 1.5s to initialize Realm and restore session
+      // auth.js reads JWT from localStorage synchronously — short delay just
+      // ensures the EduYodhaAuth global is available after auth.js executes.
       setTimeout(() => {
         loadDashboard();
-      }, 1500);
+      }, 100);
     });
   </script>
 </body>
