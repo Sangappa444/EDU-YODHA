@@ -35,7 +35,13 @@ jobs:
         run: npm ci
 
       - name: Build site
+        # VITE_API_URL tells the Vite build exactly which backend URL to use.
+        # Set VITE_API_URL as a GitHub Actions secret (repo Settings → Secrets → Actions).
+        # If the secret is not set, the runtime fallback in auth.js will use
+        # https://api.eduyodha.com automatically (hostname != localhost).
         run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -1,0 +1,40 @@
+# ============================================================
+#  EDU YODHA — Render.com Deployment Configuration
+#  Deploys the Express backend as a Web Service on Render's
+#  free tier (Hobby plan = $0/month).
+#
+#  Setup steps (one-time, done in Render dashboard):
+#  1. Go to https://render.com → New → Web Service
+#  2. Connect the GitHub repo: Sangappa444/EDU-YODHA
+#  3. Render will auto-detect this render.yaml
+#  4. Add the following environment variables in Render dashboard
+#     (Settings → Environment → Add Secret File or individual vars):
+#       MONGODB_URI      = mongodb+srv://...
+#       JWT_SECRET       = (your secret)
+#       JWT_EXPIRES_IN   = 7d
+#       GOOGLE_CLIENT_ID = 713345187824-eivr9lt95h49hgaod3557hmuhndrdq17.apps.googleusercontent.com
+#       GOOGLE_CLIENT_SECRET = (your secret — never in code)
+#       NODE_ENV         = production
+#       FRONTEND_URL     = https://eduyodha.com
+# ============================================================
+
+services:
+  - type: web
+    name: eduyodha-api
+    runtime: node
+    region: singapore          # closest free-tier region to India
+    plan: free                 # Render Free plan ($0/month)
+    rootDir: server            # Express code is in /server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000           # Render sets PORT env var; this is the default
+      - key: FRONTEND_URL
+        value: https://eduyodha.com
+      # ── Secrets — set these in Render Dashboard, NOT here ────────────
+      # MONGODB_URI, JWT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+      # Go to: Render Dashboard → eduyodha-api → Environment → Add
