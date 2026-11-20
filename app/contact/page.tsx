@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Building2, Globe, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Building2, Globe, MapPin, Mail, AlertCircle, CheckCircle2 } from 'lucide-react'
 
 type ContactFormData = {
   fullName: string
@@ -123,10 +123,53 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl bg-slate-50 border border-slate-200 p-5">
-                <p className="text-sm text-slate-500">
-                  <span className="font-medium text-slate-700">Contact details</span> (phone, email, address) will be listed here as they become available.
-                </p>
+              {/* Registered Office */}
+              <a
+                href="https://maps.google.com/?q=Innov8+Prestige+Tech+Platina+Kadubeesanahalli+Bengaluru"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-4 group hover:bg-slate-50 rounded-xl p-3 -mx-3 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-[#06b6d4]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <MapPin className="w-5 h-5 text-[#06b6d4]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-700 mb-0.5">Registered Office</p>
+                  <p className="text-slate-600 leading-relaxed">
+                    Innov8, Prestige Tech Platina,<br />
+                    Kadubeesanahalli,<br />
+                    Bengaluru, Karnataka, India.
+                  </p>
+                  <p className="text-xs text-[#1e40af] mt-1 group-hover:underline">View on Google Maps →</p>
+                </div>
+              </a>
+
+              {/* Official Email */}
+              <a
+                href="mailto:eduyodha1@gmail.com"
+                className="flex items-start gap-4 group hover:bg-slate-50 rounded-xl p-3 -mx-3 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-[#1e40af]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Mail className="w-5 h-5 text-[#1e40af]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-700 mb-0.5">Official Email</p>
+                  <p className="text-[#1e40af] group-hover:underline">eduyodha1@gmail.com</p>
+                </div>
+              </a>
+
+              {/* Google Maps Embed */}
+              <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                <iframe
+                  title="EDU YODHA LLP – Innov8 Prestige Tech Platina Bengaluru"
+                  src="https://maps.google.com/maps?q=Innov8+Prestige+Tech+Platina+Kadubeesanahalli+Bengaluru&output=embed"
+                  width="100%"
+                  height="220"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
 
               <div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle, Users, Target, Eye, Heart } from 'lucide-react'
+import { CheckCircle, Users, Target, Eye, Heart, MapPin, Mail } from 'lucide-react'
 
 const missionVisionValues = [
   {
@@ -164,7 +164,7 @@ export default function AboutPage() {
           <p className="text-slate-500 text-center mb-10">
             EDU YODHA LLP is a legally registered and compliant entity.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {credentials.map(({ title, description }) => (
               <div
                 key={title}
@@ -175,6 +175,33 @@ export default function AboutPage() {
                 <p className="text-slate-600 text-sm leading-relaxed">{description}</p>
               </div>
             ))}
+          </div>
+
+          {/* Registered Office Address */}
+          <div className="bg-[#0f172a] rounded-2xl p-8 flex flex-col sm:flex-row gap-6 items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+              <MapPin className="w-6 h-6 text-cyan-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-white font-semibold text-lg mb-1">Registered Office</h3>
+              <a
+                href="https://maps.google.com/?q=Innov8+Prestige+Tech+Platina+Kadubeesanahalli+Bengaluru"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-300 hover:text-white transition-colors leading-relaxed block mb-3"
+              >
+                Innov8, Prestige Tech Platina, Kadubeesanahalli,<br />
+                Bengaluru, Karnataka, India.
+                <span className="ml-2 text-xs text-cyan-400 hover:underline">View on Maps →</span>
+              </a>
+              <a
+                href="mailto:eduyodha1@gmail.com"
+                className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm"
+              >
+                <Mail className="w-4 h-4 text-cyan-400" />
+                eduyodha1@gmail.com
+              </a>
+            </div>
           </div>
         </div>
       </section>
