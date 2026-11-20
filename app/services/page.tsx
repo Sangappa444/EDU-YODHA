@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  BookOpen, GraduationCap, Lightbulb, Monitor, Users, Youtube,
+  BookOpen, GraduationCap, Lightbulb, Monitor, Users, Video,
   FileText, FlaskConical, Compass, Layers, Code2, ShieldCheck, ExternalLink, ArrowRight,
 } from 'lucide-react';
 
@@ -99,8 +99,8 @@ const otherServices = [
   { id: 7,  icon: Users,       title: 'Online Tutoring & Academic Support',           desc: 'One-on-one and group academic support sessions.' },
   { id: 8,  icon: BookOpen,    title: 'Educational PDF, E-Books & Study Material',    desc: 'High-quality study materials and digital publications.' },
   { id: 9,  icon: FileText,    title: 'Model Papers & Online Test Series',            desc: 'Exam preparation resources and online test series.' },
-  { id: 10, icon: Youtube,     title: 'Digital Media & Content Creation',             desc: 'Professional educational media and content production.' },
-  { id: 11, icon: Youtube,     title: 'YouTube & Educational Media Activities',       desc: 'Educational video content and YouTube channel management.' },
+  { id: 10, icon: Video,       title: 'Digital Media & Content Creation',             desc: 'Professional educational media and content production.' },
+  { id: 11, icon: Video,       title: 'YouTube & Educational Media Activities',       desc: 'Educational video content and YouTube channel management.' },
   { id: 12, icon: Code2,       title: 'Programming & Technical Education',            desc: 'Coding bootcamps and technical education programs.' },
   { id: 13, icon: Compass,     title: 'Career Guidance & Student Support',            desc: 'Personalised career counselling and student mentorship.' },
   { id: 14, icon: FlaskConical, title: 'Educational Research & Development',          desc: 'Research initiatives in education and learning innovation.' },
