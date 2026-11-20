@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ThemeToggle from "./ThemeToggle";
 
 interface NavLink {
   label: string;
@@ -56,8 +57,8 @@ export default function Navbar() {
         className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100"
-            : "bg-white/80 backdrop-blur-sm"
+            ? "bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md shadow-sm border-b border-slate-100 dark:border-slate-800"
+            : "bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-sm"
         )}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,8 +99,8 @@ export default function Navbar() {
                     className={cn(
                       "px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200",
                       isActive
-                        ? "text-[#1e40af] bg-blue-50 font-semibold"
-                        : "text-slate-600 hover:text-[#0f172a] hover:bg-slate-50"
+                        ? "text-[#1e40af] bg-blue-50 dark:bg-blue-950 font-semibold"
+                        : "text-slate-600 dark:text-slate-300 hover:text-[#0f172a] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                     )}
                   >
                     {link.label}
@@ -108,31 +109,35 @@ export default function Navbar() {
               })}
             </div>
 
-            {/* Desktop CTA */}
-            <div className="hidden lg:flex items-center">
+            {/* Desktop CTA + Theme Toggle */}
+            <div className="hidden lg:flex items-center gap-2">
+              <ThemeToggle />
               <Link
                 href="/internships"
-                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#0f172a] hover:bg-[#1e293b] transition-all duration-200 shadow-sm hover:shadow-md"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#0f172a] dark:bg-[#1e40af] hover:bg-[#1e293b] dark:hover:bg-[#1e3a8a] transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 Explore Our Programs
               </Link>
             </div>
 
-            {/* Mobile Hamburger */}
-            <button
-              type="button"
-              onClick={() => setMobileOpen((prev) => !prev)}
-              className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-600 hover:text-[#0f172a] hover:bg-slate-100 transition-colors"
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileOpen}
-              aria-controls="mobile-menu"
-            >
-              {mobileOpen ? (
-                <X className="w-5 h-5" aria-hidden="true" />
-              ) : (
-                <Menu className="w-5 h-5" aria-hidden="true" />
-              )}
-            </button>
+            {/* Mobile Hamburger + Theme Toggle */}
+            <div className="lg:hidden flex items-center gap-1">
+              <ThemeToggle />
+              <button
+                type="button"
+                onClick={() => setMobileOpen((prev) => !prev)}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-slate-600 dark:text-slate-300 hover:text-[#0f172a] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-menu"
+              >
+                {mobileOpen ? (
+                  <X className="w-5 h-5" aria-hidden="true" />
+                ) : (
+                  <Menu className="w-5 h-5" aria-hidden="true" />
+                )}
+              </button>
+            </div>
           </div>
         </nav>
       </header>
@@ -155,19 +160,19 @@ export default function Navbar() {
         <div
           id="mobile-menu"
           className={cn(
-            "absolute top-0 right-0 h-full w-72 max-w-full bg-white shadow-2xl transition-transform duration-300 ease-out flex flex-col",
+            "absolute top-0 right-0 h-full w-72 max-w-full bg-white dark:bg-[#0f172a] shadow-2xl transition-transform duration-300 ease-out flex flex-col",
             mobileOpen ? "translate-x-0" : "translate-x-full"
           )}
         >
           {/* Panel Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <span className="text-lg font-extrabold text-[#0f172a] tracking-tight">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+            <span className="text-lg font-extrabold text-[#0f172a] dark:text-white tracking-tight">
               EDU <span className="text-[#1e40af]">YODHA</span>
             </span>
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Close menu"
             >
               <X className="w-5 h-5" aria-hidden="true" />
@@ -188,8 +193,8 @@ export default function Navbar() {
                   className={cn(
                     "flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200",
                     isActive
-                      ? "text-[#1e40af] bg-blue-50 font-semibold"
-                      : "text-slate-700 hover:text-[#0f172a] hover:bg-slate-50"
+                      ? "text-[#1e40af] bg-blue-50 dark:bg-blue-950 font-semibold"
+                      : "text-slate-700 dark:text-slate-300 hover:text-[#0f172a] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                   )}
                 >
                   {link.label}
@@ -199,10 +204,10 @@ export default function Navbar() {
           </nav>
 
           {/* Mobile CTA */}
-          <div className="px-4 py-5 border-t border-slate-100">
+          <div className="px-4 py-5 border-t border-slate-100 dark:border-slate-800">
             <Link
               href="/internships"
-              className="flex items-center justify-center w-full px-4 py-3 rounded-lg text-sm font-semibold text-white bg-[#0f172a] hover:bg-[#1e293b] transition-all duration-200"
+              className="flex items-center justify-center w-full px-4 py-3 rounded-lg text-sm font-semibold text-white bg-[#0f172a] dark:bg-[#1e40af] hover:bg-[#1e293b] dark:hover:bg-[#1e3a8a] transition-all duration-200"
             >
               Explore Our Programs
             </Link>
